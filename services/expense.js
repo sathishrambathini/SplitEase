@@ -12,4 +12,13 @@ deleteExpenses = async (id) => {
     return await expenseSchema.deleteOne({"_id": id});
 };
 
-module.exports = {createExpenses, updateExpenses, deleteExpenses}
+getAllExpenses = async (req) => {
+    return await expenseSchema.find(req);
+};
+
+module.exports = {
+    createExpenses, 
+    updateExpenses, 
+    deleteExpenses,
+    getAllExpenses
+};

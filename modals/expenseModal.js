@@ -5,13 +5,13 @@ const ExpenseSchema = new Schema({
     name: String,
     description: String,
     amount: String,
+    date: Date,
+    userId: String,
+    groupId: String,
     createdAt: {
         type: Date,
         default: Date.now(),
     },
-    date: Date,
-    userId: String,
-    groupId: String,
     updatedAt: {
         type: Date,
         default: Date.now(),

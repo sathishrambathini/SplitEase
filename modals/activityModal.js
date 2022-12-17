@@ -1,13 +1,14 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const assignSchema = new Schema({
+const activitySchema = new Schema({
     userId: String,
     groupId: String,
     uuid: String,
     groupName: String,
     email: String,
     userName: String,
+    activitytext: String,
     createdAt: {
         type: Date,
         default: Date.now(),
@@ -18,4 +19,4 @@ const assignSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model("assign", assignSchema)
+module.exports = mongoose.model("activity", activitySchema);

@@ -10,11 +10,11 @@ checkUserExist = async (req) => {
 };
 
 validateLogin = async (req) => {
-    return await userSchema.findOne({"email" : req.email, "password": req.password});
+    return await userSchema.findOne({"email" : req.email, "password": req.password}).select("-__v -password");
 };
 
-getUser = async () => {
-    return await userSchema.find();
+getUser = async (req) => {
+    return await userSchema.findOne(req);
 };
 
 checkGroupId = async (req) => {
@@ -37,6 +37,10 @@ getAllGroupsOfUser = async (req) => {
     return await assignSchema.find(req);
 };
 
+checkAssign = async (req) => {
+    return await assignSchema.findOne(req);
+};
+
 getGroupDetails = async (req) => {
     return await groupSchema.findOne(req);
 };
@@ -51,5 +55,6 @@ module.exports = {
     createGroup,
     assigUserToGroup,
     getAllGroupsOfUser,
-    getGroupDetails
+    getGroupDetails,
+    checkAssign
 }

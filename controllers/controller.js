@@ -1,10 +1,9 @@
 const service = require("../services/service");
 const expense = require("../services/expense");
-// const { json } = require("express/lib/response");
+const activityS = require("../services/activity");
 
 createUser = async (req, resp) => {
     try{
-        console.log("existsd");
         const exist = await service.checkUserExist(req.body);
         if(!exist){
             const data = await service.createUser(req.body);
@@ -32,17 +31,24 @@ loginUser = async (req, resp)=>{
 
 createExpense = async (req, resp)=>{
     try{
-        if(!req.body.userId){
+        const userDetails = await service.checkUserIdExists(req.body);
+        const group = await service.getGroupDetails({groupId: req.body.groupId});
+        if(!userDetails || !group){
             resp.status(400).json({err: "Invalid userId"});
         }else{
-            const valid = await service.checkUserIdExists(req.body);
-            console.log("valid", valid);
-            if(!valid){
-                resp.status(400).json({err: "Invalid userId"});
-            }else{
-                let createExp = await expense.createExpenses(req.body)
-                resp.status(200).json({data: createExp});
-            }
+            let createExp = await expense.createExpenses(req.body)
+            const obj = {
+                uuid: group.uuid,
+                userId: req.body.userId,
+                groupName: group.name,
+                groupId: group._id,
+                userName: userDetails.name,
+                email: userDetails.email,
+            };
+            const activityObj = {...obj};
+            activityObj["activitytext"] = `${userDetails.name} has added an expense rs ${req.body.amount}/-`;
+            await createActivity(activityObj)
+            resp.status(200).json({data: createExp});
         }
     }catch(err){
         resp.status(500).json({err: "somethin failed"});
@@ -68,48 +74,73 @@ deleteExpense = async (req, resp) => {
 }
 
 createGroup = async (req, resp)=>{
-    const uuid = Math.random().toString(36).substring(2,7);
-    try{
-        req.body["uuid"] = uuid;
-        const group = await service.createGroup(req.body);
-        const obj = {
-            uuid,
-            userId: req.body.createdBy,
-            groupName: req.body.name,
-            groupId: group._id,
-        }
-        await service.assigUserToGroup(obj);
-        resp.status(200).json({"data": group});
-     }catch(err){
-         resp.status(500).json({"err": err});
-     }
-}
-
-joinGroup = async (req, resp) => {
-    const grp = await service.getGroupDetails({uuid: req.body.uuid});
-    const grpUser = await service.getGroupDetails({uuid: req.body.uuid, userId: req.body.userId});
-    if(grp && !grpUser){
-        const obj = {
-            groupId: req.body.groupId,
-            userId: req.body.userId,
-            uuid: grp.uuid,
-            groupName: grp.name
-        }
+    const checkName = {
+        name: req.body.name,
+        createdBy: req.body.userId,
+    };
+    const checkNameResp = await service.getGroupDetails(checkName);
+    const userDetails = await service.getUser({"_id": req.body.userId});
+    if(!checkNameResp){
+        const uuid = Math.random().toString(36).substring(2,7);
         try{
-            const group =  await service.assigUserToGroup(obj);
-            resp.status(200).json({"data": group});
+            req.body["uuid"] = uuid;
+            req.body["createdBy"] =  req.body.userId;
+            const group = await service.createGroup(req.body);
+            if(group){
+                const obj = {
+                    uuid,
+                    userId: req.body.userId,
+                    groupName: req.body.name,
+                    groupId: group._id,
+                    userName: userDetails.name,
+                    email: userDetails.email,
+                };
+                const activityObj = {...obj};
+                activityObj["activitytext"] = `${userDetails.name} has created this group (${req.body.name})`;
+                await createActivity(activityObj);
+                await service.assigUserToGroup(obj);
+                resp.status(200).json({"data": group});
+            }else{
+                resp.status(500).json({"err": "something went wrong"});
+            }
          }catch(err){
              resp.status(500).json({"err": err});
          }
     }else{
-        resp.status(400).json({"err": "no group name or user found"});
+        resp.status(400).json({"err": "name already exists"});
+    }
+}
+
+joinGroup = async (req, resp) => {
+    try{
+        const grp = await service.getGroupDetails({uuid: req.body.uuid});
+        const grpUser = await service.checkAssign({uuid: req.body.uuid, userId: req.body.userId});
+        if(grp && !grpUser){
+            const userDetails = await service.getUser({"_id": req.body.userId});
+            const obj = {
+                groupId: req.body.groupId,
+                userId: req.body.userId,
+                uuid: grp.uuid,
+                groupName: grp.name,
+                email: userDetails.email,
+                userName: userDetails.name,
+            };
+            const activityObj = {...obj};
+            activityObj["activitytext"] = `${userDetails.name} has joined this group (${grp.name})`;
+            await createActivity(activityObj);
+            const group =  await service.assigUserToGroup(obj);
+            resp.status(200).json({"data": group});
+        }else{
+            resp.status(400).json({"err": "no group name or user found"});
+        }
+    }catch(err){
+        resp.status(500).json({err});
     }
 }
 
 groups = async (req, resp) => {
     try{
         const obj = {
-            // groupId: req.params.groupId,
             userId: req.params.userId,
         }
         const group =  await service.getAllGroupsOfUser(obj);
@@ -119,6 +150,24 @@ groups = async (req, resp) => {
      }
 }
 
+getAllExpenses = async (req, resp) => {
+    try{
+        const data = await expense.getAllExpenses({userId: req.params.userId, groupId: req.params.groupId});
+        resp.status(200).json({"data": data});
+    }catch(err){
+        resp.status(500).json({"err": err});
+    }
+}
+
+createActivity = async (req) => {
+    try{
+        return await activityS.createActivity(req);
+    }catch(err){
+        resp.status(500).json({"err": err});
+    }
+}
+
+
 module.exports = {
     createUser, 
     loginUser, 
@@ -127,5 +176,6 @@ module.exports = {
     deleteExpense, 
     createGroup, 
     joinGroup, 
-    groups
+    groups,
+    getAllExpenses
 };
