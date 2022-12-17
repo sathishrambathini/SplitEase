@@ -9,11 +9,6 @@ const UserSchema = new Schema({
         type: Date,
         default: Date.now(),
     },
-    groupId: String,
-    role: {
-        type: String,
-        default: 'user'
-    }
 });
 
 module.exports = mongoose.model("user", UserSchema)

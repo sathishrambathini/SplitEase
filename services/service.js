@@ -1,11 +1,11 @@
-const userSchema  = require("../modals/modal.js");
-
+const userSchema  = require("../modals/userModal");
+const groupSchema = require("../modals/groupModal");
+const assignSchema = require("../modals/assignModal");
 createUser = async (req) => {
     return await userSchema.create(req);
 };
 
 checkUserExist = async (req) => {
-    console.log("console.log", req)
     return await userSchema.findOne({"email" : req.email});
 };
 
@@ -25,6 +25,21 @@ checkUserIdExists = async (req) => {
     return await userSchema.findOne({"_id" : req.userId});
 };
 
+createGroup = async (req) => {
+    return await groupSchema.create(req);
+};
+
+assigUserToGroup = async (req) => {
+    return await assignSchema.create(req);
+};
+
+getAllGroupsOfUser = async (req) => {
+    return await assignSchema.find(req);
+};
+
+getGroupDetails = async (req) => {
+    return await groupSchema.findOne(req);
+};
 
 module.exports = {
     createUser,
@@ -32,5 +47,9 @@ module.exports = {
     validateLogin,
     getUser,
     checkGroupId,
-    checkUserIdExists
+    checkUserIdExists,
+    createGroup,
+    assigUserToGroup,
+    getAllGroupsOfUser,
+    getGroupDetails
 }

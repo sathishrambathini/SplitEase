@@ -1,29 +1,14 @@
 const service = require("../services/service");
 const expense = require("../services/expense");
+// const { json } = require("express/lib/response");
 
 createUser = async (req, resp) => {
     try{
         console.log("existsd");
         const exist = await service.checkUserExist(req.body);
-        console.log("exist", exist);
-        if(!req.body.groupId){
-            let r = (Math.random() + 1).toString(36).substring(7);
-            req.body["groupId"] = r;
-            req.body["role"] = "admin";
-        }
         if(!exist){
-            if(req.body["role"] !== "admin" && req.body["groupId"]){
-                const isGrpId = await service.checkGroupId(req.body);
-                if(isGrpId === null || isGrpId.length === 0){
-                    resp.status(400).json({error: "Invalid Group Id"});
-                }else{
-                    const data = await service.createUser(req.body);
-                    resp.status(200).json({"data" : data});
-                }
-            }else{
-                const data = await service.createUser(req.body);
-                resp.status(200).json({data: data});
-            }
+            const data = await service.createUser(req.body);
+            resp.status(200).json({data: data});
         }else{
             resp.status(400).json({"error": "email is exist"});
         }
@@ -82,5 +67,65 @@ deleteExpense = async (req, resp) => {
     }
 }
 
+createGroup = async (req, resp)=>{
+    const uuid = Math.random().toString(36).substring(2,7);
+    try{
+        req.body["uuid"] = uuid;
+        const group = await service.createGroup(req.body);
+        const obj = {
+            uuid,
+            userId: req.body.createdBy,
+            groupName: req.body.name,
+            groupId: group._id,
+        }
+        await service.assigUserToGroup(obj);
+        resp.status(200).json({"data": group});
+     }catch(err){
+         resp.status(500).json({"err": err});
+     }
+}
 
-module.exports = {createUser, loginUser, createExpense, updateExpense, deleteExpense};
+joinGroup = async (req, resp) => {
+    const grp = await service.getGroupDetails({uuid: req.body.uuid});
+    const grpUser = await service.getGroupDetails({uuid: req.body.uuid, userId: req.body.userId});
+    if(grp && !grpUser){
+        const obj = {
+            groupId: req.body.groupId,
+            userId: req.body.userId,
+            uuid: grp.uuid,
+            groupName: grp.name
+        }
+        try{
+            const group =  await service.assigUserToGroup(obj);
+            resp.status(200).json({"data": group});
+         }catch(err){
+             resp.status(500).json({"err": err});
+         }
+    }else{
+        resp.status(400).json({"err": "no group name or user found"});
+    }
+}
+
+groups = async (req, resp) => {
+    try{
+        const obj = {
+            // groupId: req.params.groupId,
+            userId: req.params.userId,
+        }
+        const group =  await service.getAllGroupsOfUser(obj);
+        resp.status(200).json({"data": group});
+     }catch(err){
+         resp.status(500).json({"err": err});
+     }
+}
+
+module.exports = {
+    createUser, 
+    loginUser, 
+    createExpense, 
+    updateExpense, 
+    deleteExpense, 
+    createGroup, 
+    joinGroup, 
+    groups
+};
