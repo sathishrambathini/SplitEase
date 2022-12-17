@@ -2,7 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/routeSpl");
 const app = express();
-
+const cors = require('cors');
+app.use(cors());
 app.use(express.json());
 app.listen(8086, ()=>{
     console.log("http://localhost:8086");
