@@ -118,7 +118,7 @@ joinGroup = async (req, resp) => {
         if(grp && !grpUser){
             const userDetails = await service.getUser({"_id": req.body.userId});
             const obj = {
-                groupId: req.body.groupId,
+                groupId: grp._id,
                 userId: req.body.userId,
                 uuid: grp.uuid,
                 groupName: grp.name,
@@ -167,6 +167,16 @@ createActivity = async (req) => {
     }
 }
 
+getUsers = async (req, resp) => {
+    const obj = { groupId : req.params.groupId }
+    try{
+        const data = await service.getUsers(obj);
+        resp.status(200).json({"data": data});
+    }catch(err){
+        resp.status(500).json({"err": err});
+    }
+}
+
 
 module.exports = {
     createUser, 
@@ -177,5 +187,6 @@ module.exports = {
     createGroup, 
     joinGroup, 
     groups,
-    getAllExpenses
+    getAllExpenses,
+    getUsers
 };

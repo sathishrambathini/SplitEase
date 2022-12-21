@@ -9,7 +9,8 @@ const {
     createGroup, 
     joinGroup, 
     groups,
-    getAllExpenses
+    getAllExpenses,
+    getUsers
 } = require("../controllers/controller")
 
 router.route("/signup").post(createUser);
@@ -21,4 +22,5 @@ router.route("/expense/:userId/:groupId").get(getAllExpenses);
 router.route("/group").post(createGroup);
 router.route("/join/group").post(joinGroup);
 router.route("/groups/:userId").get(groups);
+router.route("/users/:groupId").get(getUsers);
 module.exports = router;

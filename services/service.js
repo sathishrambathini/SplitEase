@@ -45,6 +45,10 @@ getGroupDetails = async (req) => {
     return await groupSchema.findOne(req);
 };
 
+getUsers = async (req) => {
+    return await assignSchema.find(req);
+}
+
 module.exports = {
     createUser,
     checkUserExist,
@@ -56,5 +60,6 @@ module.exports = {
     assigUserToGroup,
     getAllGroupsOfUser,
     getGroupDetails,
-    checkAssign
+    checkAssign,
+    getUsers
 }
