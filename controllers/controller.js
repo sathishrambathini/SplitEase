@@ -32,7 +32,7 @@ loginUser = async (req, resp)=>{
 createExpense = async (req, resp)=>{
     try{
         const userDetails = await service.checkUserIdExists(req.body);
-        const group = await service.getGroupDetails({groupId: req.body.groupId});
+        const group = await service.getGroupDetails({_id: req.body.groupId});
         if(!userDetails || !group){
             resp.status(400).json({err: "Invalid userId"});
         }else{
@@ -115,6 +115,7 @@ joinGroup = async (req, resp) => {
     try{
         const grp = await service.getGroupDetails({uuid: req.body.uuid});
         const grpUser = await service.checkAssign({uuid: req.body.uuid, userId: req.body.userId});
+        // console.log("grpUser", grpUser);
         if(grp && !grpUser){
             const userDetails = await service.getUser({"_id": req.body.userId});
             const obj = {
@@ -177,6 +178,15 @@ getUsers = async (req, resp) => {
     }
 }
 
+getActivity = async (req, resp) => {
+    const obj = { groupId : req.params.groupId }
+    try{
+        const data = await activityS.getActivity(obj);
+        resp.status(200).json({"data": data});
+    }catch(err){
+        resp.status(500).json({"err": err});
+    }
+}
 
 module.exports = {
     createUser, 
@@ -188,5 +198,6 @@ module.exports = {
     joinGroup, 
     groups,
     getAllExpenses,
-    getUsers
+    getUsers,
+    getActivity
 };
