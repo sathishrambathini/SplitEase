@@ -1,7 +1,7 @@
 const service = require("../services/service");
 const expense = require("../services/expense");
 const activityS = require("../services/activity");
-
+const mailService = require("../services/mailService")
 createUser = async (req, resp) => {
     try{
         const exist = await service.checkUserExist(req.body);
@@ -57,7 +57,7 @@ createExpense = async (req, resp)=>{
 
 updateExpense = async (req, resp) => {
     try{
-       const upExp = await expense.updateExpenses(req.query.id, req.body);
+       const upExp = await expense.updateExpenses(req.params.id, req.body);
        resp.status(200).json({"data": upExp})
     }catch(err){
         resp.status(500).json({"err": err});
@@ -188,6 +188,26 @@ getActivity = async (req, resp) => {
     }
 }
 
+sendEmail = async (req, resp) => {
+    const response = await mailService.sendEmail(req);
+    console.log("response", response);
+    // response ? resp.status(200).json({"data": "sent"}) : resp.status(400).json({"data": "failed"});
+}
+
+getBill = async (req, resp) => {
+    const obj = { groupId : req.params.groupId }
+    try{
+        const data = await service.getUsers(obj);
+        resp.status(200).json({"data": data});
+        console.log("users", data);
+        const response = await expense.getBill({groupId:req.params.groupId});
+        console.log("response", response);
+    }catch(err){
+        resp.status(500).json({"err": err});
+    }
+   
+    // response ? resp.status(200).json({"data": "sent"}) : resp.status(400).json({"data": "failed"});
+}
 module.exports = {
     createUser, 
     loginUser, 
@@ -199,5 +219,7 @@ module.exports = {
     groups,
     getAllExpenses,
     getUsers,
-    getActivity
+    getActivity,
+    sendEmail,
+    getBill
 };
