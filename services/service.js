@@ -1,6 +1,7 @@
 const userSchema  = require("../modals/userModal");
 const groupSchema = require("../modals/groupModal");
 const assignSchema = require("../modals/assignModal");
+
 createUser = async (req) => {
     return await userSchema.create(req);
 };
@@ -49,6 +50,11 @@ getUsers = async (req) => {
     return await assignSchema.find(req);
 }
 
+deleteGroup = async (req, req1) => {
+    await assignSchema.deleteMany(req);
+    return await groupSchema.deleteMany(req1);
+}
+
 module.exports = {
     createUser,
     checkUserExist,
@@ -61,5 +67,6 @@ module.exports = {
     getAllGroupsOfUser,
     getGroupDetails,
     checkAssign,
-    getUsers
+    getUsers,
+    deleteGroup
 }

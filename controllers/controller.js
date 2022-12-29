@@ -1,7 +1,8 @@
 const service = require("../services/service");
 const expense = require("../services/expense");
 const activityS = require("../services/activity");
-const mailService = require("../services/mailService")
+const mailService = require("../services/mailService");
+
 createUser = async (req, resp) => {
     try{
         const exist = await service.checkUserExist(req.body);
@@ -94,6 +95,7 @@ createGroup = async (req, resp)=>{
                     groupId: group._id,
                     userName: userDetails.name,
                     email: userDetails.email,
+                    createdBy: req.body.userId,
                 };
                 const activityObj = {...obj};
                 activityObj["activitytext"] = `${userDetails.name} has created this group (${req.body.name})`;
@@ -125,6 +127,7 @@ joinGroup = async (req, resp) => {
                 groupName: grp.name,
                 email: userDetails.email,
                 userName: userDetails.name,
+                createdBy: grp.createdBy,
             };
             const activityObj = {...obj};
             activityObj["activitytext"] = `${userDetails.name} has joined this group (${grp.name})`;
@@ -208,6 +211,20 @@ getBill = async (req, resp) => {
    
     // response ? resp.status(200).json({"data": "sent"}) : resp.status(400).json({"data": "failed"});
 }
+
+deletGroup = async (req, resp)=>{
+    const obj = { groupId : req.params.groupId };
+    const objOwn = { _id : req.params.groupId }
+    try{
+        await service.deleteGroup(obj, objOwn);
+        await expense.deleteGroup(obj);
+        await activityS.deleteGroup(obj);
+        resp.status(200).json({"data": [{data: "deleted Successfully"}]});
+    }catch(err){
+        resp.status(500).json({"err": err});
+    }
+}
+
 module.exports = {
     createUser, 
     loginUser, 
@@ -221,5 +238,6 @@ module.exports = {
     getUsers,
     getActivity,
     sendEmail,
-    getBill
+    getBill,
+    deletGroup
 };

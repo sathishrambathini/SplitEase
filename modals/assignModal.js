@@ -8,6 +8,7 @@ const assignSchema = new Schema({
     groupName: String,
     email: String,
     userName: String,
+    createdBy: String,
     createdAt: {
         type: Date,
         default: Date.now(),

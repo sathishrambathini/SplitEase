@@ -8,7 +8,12 @@ getActivity = async (req) => {
     return await activitySchema.find(req);
 }
 
+deleteGroup = async (req) => {
+    return await activitySchema.deleteMany(req);
+}
+
 module.exports = {
     createActivity,
-    getActivity
+    getActivity,
+    deleteGroup
 };

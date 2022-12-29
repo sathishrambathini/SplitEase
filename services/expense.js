@@ -8,6 +8,7 @@ console.log(req);
 
 updateExpenses = async (id, req) => {
     console.log(req);
+    console.log(id);
     return await expenseSchema.updateOne({"_id": id,}, req);
 };
 
@@ -25,10 +26,15 @@ getBill=async (req)=>{
    return await expenseSchema.find(req);
 }
 
+deleteGroup = async (req) => {
+    return await expenseSchema.deleteMany(req);
+}
+
 module.exports = {
     createExpenses, 
     updateExpenses, 
     deleteExpenses,
     getAllExpenses,
-    getBill
+    getBill,
+    deleteGroup
 };

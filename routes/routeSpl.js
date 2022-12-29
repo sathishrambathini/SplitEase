@@ -13,7 +13,8 @@ const {
     getUsers,
     getActivity,
     sendEmail,
-    getBill
+    getBill,
+    deletGroup
 } = require("../controllers/controller")
 
 router.route("/signup").post(createUser);
@@ -25,6 +26,7 @@ router.route("/expense/:groupId/:userId").get(getAllExpenses);
 router.route("/group").post(createGroup);
 router.route("/join/group").post(joinGroup);
 router.route("/groups/:userId").get(groups);
+router.route("/delete/group/:groupId").delete(deletGroup);
 router.route("/users/:groupId").get(getUsers);
 router.route("/activity/:groupId").get(getActivity);
 router.route("/sendemail").get(sendEmail);
