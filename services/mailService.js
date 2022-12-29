@@ -28,6 +28,7 @@ sendEmail = (_req)=>{
         let promise = new Promise(function(resolve, reject) {
             if (err) {
 console.log(err); //mp
+console.log("checkng"); //mp
             return    reject(new Error('Something is not right!'));
                 // return false;
             }else{
