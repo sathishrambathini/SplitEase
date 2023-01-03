@@ -37,7 +37,7 @@ var users = [
       age: "26",
     },
   ];
-  
+  console.log("Users :",users);
   var document = {
     html: html,
     data: {
