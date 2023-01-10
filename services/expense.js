@@ -22,7 +22,6 @@ getAllExpenses = async (req) => {
 
 getBill=async (req)=>{
 
-    
    return await expenseSchema.find(req);
 }
 
